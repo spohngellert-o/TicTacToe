@@ -27,6 +27,9 @@ defmodule TicTacToe do
 end
 
 defmodule Board do
+  @moduledoc """
+  Struct representing a board in the game of TicTacToe
+  """
   @type square :: :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
   defstruct [:A1, :A2, :A3, :B1, :B2, :B3, :C1, :C2, :C3]
 end
@@ -80,16 +83,14 @@ defmodule Game do
 
       iex> Game.put([board: %Board{A1: :X, A2: :O, A3: :X, B1: :O, B2: :X, B3: :O, C1: :X, C2: :O, C3: :X}, turn: 9], :A1)
       {:error, [board: %Board{A1: :X, A2: :O, A3: :X, B1: :O, B2: :X, B3: :O, C1: :X, C2: :O, C3: :X}, turn: 9]}
-  }] 
+  }]
   """
   @spec put(state :: game_state, square :: Board.square()) :: {:ok | :error, game_state}
   def put(state = [board: board, turn: turn], square) do
-    cond do
-      Map.get(board, square) == :empty ->
-        {:ok, [board: Map.put(board, square, Enum.at(@turn_order, turn)), turn: turn + 1]}
-
-      true ->
-        {:error, state}
+    if Map.get(board, square) == :empty do
+      {:ok, [board: Map.put(board, square, Enum.at(@turn_order, turn)), turn: turn + 1]}
+    else
+      {:error, state}
     end
   end
 
@@ -100,7 +101,7 @@ defmodule Game do
 
       iex> Game.winner(Game.new())
       nil
-      
+
       iex> Game.winner(board: %Board{A1: :X, A2: :empty, A3: :O, B1: :empty, B2: :O, B3: :empty, C1: :O, C2: :empty, C3: :X}, turn: 4)
       :O
   """
