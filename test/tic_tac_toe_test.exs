@@ -4,20 +4,7 @@ defmodule GameTest do
   doctest Game
 
   test "new game" do
-    assert Game.new() == [
-             board: %Board{
-               A1: :empty,
-               A2: :empty,
-               A3: :empty,
-               B1: :empty,
-               B2: :empty,
-               B3: :empty,
-               C1: :empty,
-               C2: :empty,
-               C3: :empty
-             },
-             turn: 0
-           ]
+    assert Game.new() == [board: %Board{}, turn: 0]
   end
 
   test "put to empty board" do
@@ -26,15 +13,7 @@ defmodule GameTest do
              :ok,
              [
                board: %Board{
-                 A1: :X,
-                 A2: :empty,
-                 A3: :empty,
-                 B1: :empty,
-                 B2: :empty,
-                 B3: :empty,
-                 C1: :empty,
-                 C2: :empty,
-                 C3: :empty
+                 A1: :X
                },
                turn: 1
              ]
@@ -48,15 +27,7 @@ defmodule GameTest do
              {:error,
               [
                 board: %Board{
-                  A1: :empty,
-                  A2: :empty,
-                  A3: :empty,
-                  B1: :empty,
-                  B2: :empty,
-                  B3: :X,
-                  C1: :empty,
-                  C2: :empty,
-                  C3: :empty
+                  B3: :X
                 },
                 turn: 1
               ]}
@@ -71,13 +42,7 @@ defmodule GameTest do
              board: %Board{
                A1: :X,
                A2: :X,
-               A3: :X,
-               B1: :empty,
-               B2: :empty,
-               B3: :empty,
-               C1: :empty,
-               C2: :empty,
-               C3: :empty
+               A3: :X
              },
              turn: 4
            ) == :X
@@ -86,15 +51,9 @@ defmodule GameTest do
   test "Winner by row 2" do
     assert Game.winner(
              board: %Board{
-               A1: :empty,
-               A2: :empty,
-               A3: :empty,
                B1: :O,
                B2: :O,
-               B3: :O,
-               C1: :empty,
-               C2: :empty,
-               C3: :empty
+               B3: :O
              },
              turn: 4
            ) == :O
@@ -103,12 +62,6 @@ defmodule GameTest do
   test "Winner by row 3" do
     assert Game.winner(
              board: %Board{
-               A1: :empty,
-               A2: :empty,
-               A3: :empty,
-               B1: :empty,
-               B2: :empty,
-               B3: :empty,
                C1: :X,
                C2: :X,
                C3: :X
@@ -121,11 +74,7 @@ defmodule GameTest do
     assert Game.winner(
              board: %Board{
                A1: :O,
-               A2: :empty,
-               A3: :empty,
                B1: :O,
-               B2: :empty,
-               B3: :empty,
                C1: :O,
                C2: :X,
                C3: :X
@@ -137,15 +86,12 @@ defmodule GameTest do
   test "Winner by col 2" do
     assert Game.winner(
              board: %Board{
-               A1: :empty,
                A2: :X,
                A3: :O,
-               B1: :empty,
                B2: :X,
                B3: :O,
                C1: :O,
-               C2: :X,
-               C3: :empty
+               C2: :X
              },
              turn: 4
            ) == :X
@@ -154,11 +100,8 @@ defmodule GameTest do
   test "Winner by col 3" do
     assert Game.winner(
              board: %Board{
-               A1: :empty,
                A2: :X,
                A3: :O,
-               B1: :empty,
-               B2: :empty,
                B3: :O,
                C1: :O,
                C2: :X,
@@ -172,13 +115,9 @@ defmodule GameTest do
     assert Game.winner(
              board: %Board{
                A1: :X,
-               A2: :empty,
                A3: :O,
-               B1: :empty,
                B2: :X,
-               B3: :empty,
                C1: :O,
-               C2: :empty,
                C3: :X
              },
              turn: 4
@@ -189,13 +128,9 @@ defmodule GameTest do
     assert Game.winner(
              board: %Board{
                A1: :X,
-               A2: :empty,
                A3: :O,
-               B1: :empty,
                B2: :O,
-               B3: :empty,
                C1: :O,
-               C2: :empty,
                C3: :X
              },
              turn: 4

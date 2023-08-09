@@ -1,37 +1,17 @@
-defmodule TicTacToe do
-  @moduledoc """
-  Documentation for TicTacToe.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> TicTacToe.hello()
-      :world
-
-  """
-  def main(_args) do
-    hello()
-  end
-
-  def hello() do
-    IO.puts("hello world!")
-    :world
-  end
-
-  def test(x, y) do
-    x + y
-  end
-end
-
 defmodule Board do
   @moduledoc """
   Struct representing a board in the game of TicTacToe
   """
   @type square :: :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
-  defstruct [:A1, :A2, :A3, :B1, :B2, :B3, :C1, :C2, :C3]
+  defstruct A1: :empty,
+            A2: :empty,
+            A3: :empty,
+            B1: :empty,
+            B2: :empty,
+            B3: :empty,
+            C1: :empty,
+            C2: :empty,
+            C3: :empty
 end
 
 defmodule Game do
@@ -43,18 +23,6 @@ defmodule Game do
           board: Board,
           turn: integer
         ]
-
-  @default_board %Board{
-    A1: :empty,
-    A2: :empty,
-    A3: :empty,
-    B1: :empty,
-    B2: :empty,
-    B3: :empty,
-    C1: :empty,
-    C2: :empty,
-    C3: :empty
-  }
 
   @turn_order List.duplicate([:X, :O], 9) |> List.flatten()
   @winning_trios [
@@ -69,7 +37,7 @@ defmodule Game do
   ]
 
   def new() do
-    [board: @default_board, turn: 0]
+    [board: %Board{}, turn: 0]
   end
 
   @doc """
