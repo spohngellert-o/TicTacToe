@@ -148,9 +148,9 @@ defmodule TerminalView do
   @squares [:A1, :A2, :A3, :B1, :B2, :B3, :C1, :C2, :C3]
 
   @spec square_to_str(Board.square_state()) :: String.t()
-  def square_to_str(:O), do: "O"
-  def square_to_str(:X), do: "X"
-  def square_to_str(:empty), do: " "
+  defp square_to_str(:O), do: "O"
+  defp square_to_str(:X), do: "X"
+  defp square_to_str(:empty), do: " "
 
   @spec get_board_str(board :: Board) :: String.t()
   def get_board_str(board) do
