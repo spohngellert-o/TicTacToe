@@ -89,4 +89,9 @@ defmodule Game do
     placements = trio |> Enum.map(&Map.get(board, &1))
     Enum.reduce(placements, fn p, acc -> if p == acc and p != :empty, do: p, else: nil end)
   end
+
+  @spec game_over?(state :: game_state) :: boolean()
+  def game_over?(state = [board: _board, turn: turn]) do
+    turn >= 9 or winner(state) != nil
+  end
 end
