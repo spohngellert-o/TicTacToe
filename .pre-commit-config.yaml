@@ -21,7 +21,7 @@ repos:
 
   - id: mix-format
     name: 'elixir: mix format'
-    entry: mix format --check-formatted
+    entry: mix format
     language: system
     files: \.exs*$
 

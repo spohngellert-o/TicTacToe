@@ -136,4 +136,19 @@ defmodule GameTest do
              turn: 4
            ) == :O
   end
+
+  test "Game result new game" do
+    assert Game.game_result(Game.new()) == nil
+  end
+
+  test "Game result X won" do
+    assert Game.game_result(board: %Board{A1: :X, B2: :X, C3: :X}, turn: 3) == :X
+  end
+
+  test "Game result full board" do
+    assert Game.game_result(
+             board: %Board{A1: :X, A2: :X, A3: :O, B1: :O, B2: :O, B3: :X, C1: :X, C2: :O, C3: :X},
+             turn: 9
+           ) == :tie
+  end
 end

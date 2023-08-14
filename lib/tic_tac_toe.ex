@@ -2,6 +2,8 @@ defmodule Board do
   @moduledoc """
   Struct representing a board in the game of TicTacToe
   """
+  @type square_state :: :X | :O | :empty
+  @type player :: :X | :O
   @type square :: :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
   defstruct A1: :empty,
             A2: :empty,
@@ -19,6 +21,7 @@ defmodule Game do
   Model object for tic tac toe game
   """
 
+  @type game_result :: Board.player() | :tie
   @type game_state :: [
           board: Board,
           turn: integer
@@ -36,6 +39,10 @@ defmodule Game do
     [:A3, :B2, :C1]
   ]
 
+  @doc """
+  Generates a new game
+  """
+  @spec new() :: game_state()
   def new() do
     [board: %Board{}, turn: 0]
   end
@@ -73,7 +80,7 @@ defmodule Game do
       iex> Game.winner(board: %Board{A1: :X, A2: :empty, A3: :O, B1: :empty, B2: :O, B3: :empty, C1: :O, C2: :empty, C3: :X}, turn: 4)
       :O
   """
-  @spec winner(state :: game_state) :: :X | :O | nil
+  @spec winner(state :: game_state) :: Board.player() | nil
   def winner(board: board, turn: _turn) do
     @winning_trios
     |> Enum.reduce_while(nil, fn trio, _acc ->
@@ -90,8 +97,31 @@ defmodule Game do
     Enum.reduce(placements, fn p, acc -> if p == acc and p != :empty, do: p, else: nil end)
   end
 
-  @spec game_over?(state :: game_state) :: boolean()
-  def game_over?(state = [board: _board, turn: turn]) do
-    turn >= 9 or winner(state) != nil
+  @doc """
+  Determines the game result based on the game state.
+  A game is over when it satisfies one of two conditions:
+  1. A player has gotten 3 in a row (there's a winner)
+  2. All tiles are filled (9 turns have been completed)
+
+  Returns the winner or :tie based on this.
+
+  ## Examples
+
+    iex> Game.game_result(Game.new())
+    nil
+    iex> Game.game_result(board: %Board{A1: :X, A2: :X, A3: :X}, turn: 3)
+    :X
+    iex> Game.game_result(board: %Board{}, turn: 9)
+    :tie
+  """
+  @spec game_result(state :: game_state) :: game_result() | nil
+  def game_result(state = [board: _board, turn: turn]) do
+    winner = winner(state)
+
+    cond do
+      winner != nil -> winner
+      turn >= 9 -> :tie
+      true -> nil
+    end
   end
 end
