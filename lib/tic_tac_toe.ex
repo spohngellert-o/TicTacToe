@@ -125,3 +125,38 @@ defmodule Game do
     end
   end
 end
+
+defmodule TerminalView do
+  @moduledoc """
+  Module for viewing a tic tac toe game via the terminal. Includes
+  functions for printing the board to the terminal and taking in moves.
+  """
+
+  @view_templ """
+      1     2     3
+         |     |
+  A   ~  |  ~  |  ~
+    _____|_____|_____
+         |     |
+  B   ~  |  ~  |  ~
+    _____|_____|_____
+         |     |
+  C   ~  |  ~  |  ~
+         |     |
+  """
+
+  @squares [:A1, :A2, :A3, :B1, :B2, :B3, :C1, :C2, :C3]
+
+  @spec square_to_str(Board.square_state()) :: String.t()
+  def square_to_str(:O), do: "O"
+  def square_to_str(:X), do: "X"
+  def square_to_str(:empty), do: " "
+
+  @spec get_board_str(board :: Board) :: String.t()
+  def get_board_str(board) do
+    @squares
+    |> Enum.reduce(@view_templ, fn sq, acc ->
+      String.replace(acc, "~", square_to_str(Map.get(board, sq)), global: false)
+    end)
+  end
+end

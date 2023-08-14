@@ -152,3 +152,26 @@ defmodule GameTest do
            ) == :tie
   end
 end
+
+defmodule TerminalViewTest do
+  use ExUnit.Case
+
+  doctest TerminalView
+
+  @tag skip: "Haven't figured out how to test big strings"
+  test "Get board str empty board" do
+    assert TerminalView.get_board_str(%Board{}) ==
+             """
+                  1     2     3
+                     |     |
+              A      |     |
+                _____|_____|_____
+                     |     |
+              B      |     |
+                _____|_____|_____
+                     |     |
+              C      |     |
+                     |     |
+             """
+  end
+end
