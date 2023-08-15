@@ -1,3 +1,18 @@
+defmodule BoardTest do
+  use ExUnit.Case
+
+  doctest Board
+
+  test "Testing reading square on board" do
+    assert Board.read_square("B3") == {:ok, :B3}
+    assert Board.read_square("C2") == {:ok, :C2}
+  end
+
+  test "Testing reading square not on board" do
+    assert Board.read_square("D1") == :error
+  end
+end
+
 defmodule GameTest do
   use ExUnit.Case
 
@@ -156,11 +171,57 @@ end
 defmodule TerminalViewTest do
   use ExUnit.Case
 
+  import ExUnit.CaptureIO
+
   doctest TerminalView
 
   test "Get board str empty board" do
     empty_board_str = TerminalView.get_board_str(%Board{})
     assert not String.contains?(empty_board_str, "X")
     assert not String.contains?(empty_board_str, "O")
+  end
+
+  test "Get board str one placement" do
+    board_str = TerminalView.get_board_str(%Board{B2: :X})
+    assert String.match?(board_str, ~r/B\s*|\s*X\s*|/)
+  end
+
+  test "Get board str two placements" do
+    board_str = TerminalView.get_board_str(%Board{B3: :O, C2: :X})
+    assert String.match?(board_str, ~r/B\s*|\s*|\s*O/)
+    assert String.match?(board_str, ~r/C\s*|\s*X\s*|/)
+  end
+
+  test "Test getting input for valid square" do
+    {result, _output} =
+      with_io([input: "A1"], fn ->
+        mv = TerminalView.get_move(board: %Board{}, turn: 0)
+        IO.write("A1")
+        mv
+      end)
+
+    assert result == :A1
+  end
+
+  test "Test getting input for already played square" do
+    {result, _output} =
+      with_io([input: "A1"], fn ->
+        mv = TerminalView.get_move(board: %Board{A1: :X}, turn: 1)
+        IO.write("A1")
+        mv
+      end)
+
+    assert result == :A1
+  end
+
+  test "Test getting input for invalid square" do
+    {result, _output} =
+      with_io([input: "D1"], fn ->
+        mv = TerminalView.get_move(board: %Board{}, turn: 0)
+        IO.write("A1")
+        mv
+      end)
+
+    assert result == :error
   end
 end

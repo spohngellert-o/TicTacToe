@@ -14,6 +14,27 @@ defmodule Board do
             C1: :empty,
             C2: :empty,
             C3: :empty
+
+  @doc """
+  Reads in a square from string to atom format. If given string isn't a square, returns an error
+
+  ## Examples
+    iex> Board.read_square("A1")
+    {:ok, :A1}
+    iex> Board.read_square("D4")
+    :error
+  """
+  @spec read_square(String.t()) :: {:ok, square()} | :error
+  def read_square("A1"), do: {:ok, :A1}
+  def read_square("A2"), do: {:ok, :A2}
+  def read_square("A3"), do: {:ok, :A3}
+  def read_square("B1"), do: {:ok, :B1}
+  def read_square("B2"), do: {:ok, :B2}
+  def read_square("B3"), do: {:ok, :B3}
+  def read_square("C1"), do: {:ok, :C1}
+  def read_square("C2"), do: {:ok, :C2}
+  def read_square("C3"), do: {:ok, :C3}
+  def read_square(_), do: :error
 end
 
 defmodule Game do
@@ -68,6 +89,9 @@ defmodule Game do
       {:error, state}
     end
   end
+
+  @spec get_player_turn(game_state :: game_state()) :: Board.player()
+  def get_player_turn(board: _board, turn: turn), do: Enum.at(@turn_order, turn)
 
   @doc """
   Returns the winner of the game. If there is not yet a winner, returns nil.
@@ -152,11 +176,32 @@ defmodule TerminalView do
   defp square_to_str(:X), do: "X"
   defp square_to_str(:empty), do: " "
 
+  @doc """
+  Gets the board string to be printed to the terminal.
+  """
   @spec get_board_str(board :: Board) :: String.t()
   def get_board_str(board) do
     @squares
     |> Enum.reduce(@view_templ, fn sq, acc ->
       String.replace(acc, "~", square_to_str(Map.get(board, sq)), global: false)
     end)
+  end
+
+  @doc """
+  Uses terminal input to get the square a player wants to play. If an invalid
+  input is given :error is returned.
+  """
+  @spec get_move(game_state :: Game.game_state()) :: Board.square() | :error
+  def get_move(game_state = [board: board, turn: _turn]) do
+    square_str =
+      IO.gets(
+        "It's #{Game.get_player_turn(game_state)}'s turn, play your move!\n" <>
+          get_board_str(board)
+      )
+
+    case Board.read_square(String.trim(square_str)) do
+      {:ok, square} -> square
+      :error -> :error
+    end
   end
 end
