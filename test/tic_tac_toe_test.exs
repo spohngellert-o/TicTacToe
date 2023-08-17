@@ -224,4 +224,24 @@ defmodule TerminalViewTest do
 
     assert result == :error
   end
+
+  test "Test on illegal move occupied square" do
+    assert capture_io(fn -> TerminalView.on_illegal_move(:A2) end) =~
+             "Attempted to play to square A2, which is already occupied. Please try another move."
+  end
+
+  test "Test on illegal move no square" do
+    assert capture_io(fn -> TerminalView.on_illegal_move() end) =~
+             "Input square was not recognized, please input a square in the format A-C|1-3 (ex: B2)."
+  end
+
+  test "Test on game end winner" do
+    assert capture_io(fn -> TerminalView.on_game_over([board: %Board{}, turn: 0], :X) end) =~
+             "X wins! Congrats!"
+  end
+
+  test "Test on game end tie" do
+    assert capture_io(fn -> TerminalView.on_game_over([board: %Board{}, turn: 0], :tie) end) =~
+             "It's a tie! Good game 🤝"
+  end
 end

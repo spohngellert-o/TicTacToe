@@ -204,4 +204,36 @@ defmodule TerminalView do
       :error -> :error
     end
   end
+
+  @doc """
+  Handles illegal moves, in this case by printing that the move was illegal to the console
+  """
+  @spec on_illegal_move(move :: Board.square() | :error) :: :ok
+  def on_illegal_move(move \\ :error)
+
+  def on_illegal_move(move) when move != :error do
+    IO.puts(
+      "Attempted to play to square #{Atom.to_string(move)}, which is already occupied. Please try another move."
+    )
+  end
+
+  def on_illegal_move(:error) do
+    IO.puts(
+      "Input square was not recognized, please input a square in the format A-C|1-3 (ex: B2)."
+    )
+  end
+
+  @doc """
+  Handles the game being over, in this case by printing the winner
+  """
+  @spec on_game_over(game_state :: Game.game_state(), result :: Game.game_result()) :: :ok
+  def on_game_over([board: board, turn: _turn], result) when result != :tie do
+    IO.puts(get_board_str(board))
+    IO.puts("#{Atom.to_string(result)} wins! Congrats!")
+  end
+
+  def on_game_over([board: board, turn: _turn], :tie) do
+    IO.puts(get_board_str(board))
+    IO.puts("It's a tie! Good game 🤝")
+  end
 end
