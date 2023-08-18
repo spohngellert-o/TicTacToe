@@ -167,6 +167,7 @@ defmodule TerminalView do
          |     |
   C   ~  |  ~  |  ~
          |     |
+  >>
   """
 
   @squares [:A1, :A2, :A3, :B1, :B2, :B3, :C1, :C2, :C3]
@@ -185,6 +186,7 @@ defmodule TerminalView do
     |> Enum.reduce(@view_templ, fn sq, acc ->
       String.replace(acc, "~", square_to_str(Map.get(board, sq)), global: false)
     end)
+    |> String.trim_trailing()
   end
 
   @doc """
@@ -235,5 +237,56 @@ defmodule TerminalView do
   def on_game_over([board: board, turn: _turn], :tie) do
     IO.puts(get_board_str(board))
     IO.puts("It's a tie! Good game 🤝")
+  end
+end
+
+defmodule Controller do
+  @moduledoc """
+  Controller for TicTacToe game. Currently hard coded to use TerminalView,
+  but theoretically could use any view.
+  """
+
+  @doc """
+  Plays out a game of TicTacToe from the given game state
+  """
+  @spec play(game_state :: Game.game_state()) :: :ok
+  def play(game_state \\ Game.new()) do
+    case Game.game_result(game_state) do
+      nil -> play(handle_turn(game_state))
+      res -> TerminalView.on_game_over(game_state, res)
+    end
+  end
+
+  @spec handle_turn(game_state :: Game.game_state()) :: Game.game_state()
+  defp handle_turn(game_state) do
+    case TerminalView.get_move(game_state) do
+      :error ->
+        TerminalView.on_illegal_move(:error)
+        game_state
+
+      sq ->
+        handle_move(game_state, sq)
+    end
+  end
+
+  @spec handle_move(game_state :: Game.game_state(), sq :: Board.square()) :: Game.game_state()
+  defp handle_move(game_state, sq) do
+    case Game.put(game_state, sq) do
+      {:error, game_state} ->
+        TerminalView.on_illegal_move(sq)
+        game_state
+
+      {:ok, game_state} ->
+        game_state
+    end
+  end
+end
+
+defmodule TicTacToe do
+  @moduledoc """
+  Main module for running a tic tac toe game.
+  """
+  def main(_args) do
+    Controller.play()
   end
 end

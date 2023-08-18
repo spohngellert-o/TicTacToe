@@ -245,3 +245,30 @@ defmodule TerminalViewTest do
              "It's a tie! Good game 🤝"
   end
 end
+
+defmodule ControllerTest do
+  use ExUnit.Case
+
+  import ExUnit.CaptureIO
+
+  test "Test game where X wins" do
+    assert capture_io([input: ["A1", "B1", "A2", "B2", "A3"] |> Enum.join("\n")], fn ->
+             Controller.play()
+           end) =~ "X wins!"
+  end
+
+  test "Test game where ends in tie" do
+    assert capture_io([input: ["A1", "B1", "A2", "B2", "C1", "B3"] |> Enum.join("\n")], fn ->
+             Controller.play()
+           end) =~ "O wins!"
+  end
+
+  test "Test game where O wins" do
+    assert capture_io(
+             [input: ["A1", "B1", "A2", "B2", "B3", "A3", "C1", "C3", "C2"] |> Enum.join("\n")],
+             fn ->
+               Controller.play()
+             end
+           ) =~ "It's a tie!"
+  end
+end
