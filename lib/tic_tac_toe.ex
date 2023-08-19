@@ -6,7 +6,7 @@ defmodule Board do
   @type square :: :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
   defstruct [:A1, :A2, :A3, :B1, :B2, :B3, :C1, :C2, :C3]
 
-  @type t :: %__MODULE__{
+  @type t :: %Board{
           A1: square_state(),
           A2: square_state(),
           A3: square_state(),
@@ -61,7 +61,7 @@ defmodule Board do
       iex> Board.winner(%Board{A1: :X, A3: :O, B2: :O, C1: :O, C3: :X})
       :O
   """
-  @spec winner(board :: Board) :: square_state()
+  @spec winner(board :: Board.t()) :: square_state()
   def winner(board) do
     @winning_trios
     |> Enum.reduce_while(nil, fn trio, _acc ->
@@ -72,7 +72,7 @@ defmodule Board do
     end)
   end
 
-  @spec trio_winner(board :: Board.t(), trio :: [Board.square()]) :: :X | :O | nil
+  @spec trio_winner(board :: Board.t(), trio :: [Board.square()]) :: square_state()
   defp trio_winner(board, trio) do
     placements = trio |> Enum.map(&Map.get(board, &1))
     Enum.reduce(placements, fn p, acc -> if p == acc and p != :empty, do: p, else: nil end)
@@ -93,7 +93,7 @@ defmodule Game do
 
   @type player :: :X | :O
   @type game_result :: player() | :tie
-  @type t :: %__MODULE__{board: Board.t(), player_turn: player()}
+  @type t :: %Game{board: Board.t(), player_turn: player()}
 
   @doc """
   Generates a new game
@@ -114,18 +114,15 @@ defmodule Game do
   ## Examples
 
       iex> Game.put(Game.new(), :A1)
-      {:ok, %Game{board: %Board{A1: :X}, player_turn: :O}}
+      %Game{board: %Board{A1: :X}, player_turn: :O}
 
       iex> Game.put(%Game{board: %Board{A1: :X, A2: :O, A3: :X, B1: :O, B2: :X, B3: :O, C1: :X, C2: :O, C3: :X}, player_turn: :O}, :A1)
-      {:error, %Game{board: %Board{A1: :X, A2: :O, A3: :X, B1: :O, B2: :X, B3: :O, C1: :X, C2: :O, C3: :X}, player_turn: :O}}
+      %Game{board: %Board{A1: :O, A2: :O, A3: :X, B1: :O, B2: :X, B3: :O, C1: :X, C2: :O, C3: :X}, player_turn: :X}
   }]
   """
-  @spec put(game :: Game.t(), square :: Board.square()) :: {:ok | :error, Game.t()}
-  def put(game = %Game{board: board, player_turn: p}, square) do
-    case Map.get(board, square) do
-      nil -> {:ok, %Game{board: Map.put(board, square, p), player_turn: get_next_player(p)}}
-      _ -> {:error, game}
-    end
+  @spec put(game :: Game.t(), square :: Board.square()) :: Game.t()
+  def put(%Game{board: board, player_turn: p}, square) do
+    %Game{board: Map.put(board, square, p), player_turn: get_next_player(p)}
   end
 
   @doc """
@@ -145,7 +142,7 @@ defmodule Game do
     iex> Game.game_result(%Game{board: %Board{A1: :X, A2: :X, A3: :O, B1: :O, B2: :O, B3: :X, C1: :X, C2: :O, C3: :X}, player_turn: :O})
     :tie
   """
-  @spec game_result(game :: Game.t()) :: game_result() | nil
+  @spec game_result(game :: Game.t() | nil) :: game_result() | nil
   def game_result(game) do
     winner = Board.winner(game.board)
 
@@ -187,7 +184,7 @@ defmodule TerminalView do
   @doc """
   Gets the board string to be printed to the terminal.
   """
-  @spec get_board_str(board :: Board) :: String.t()
+  @spec get_board_str(board :: Board.t()) :: String.t()
   def get_board_str(board) do
     @squares
     |> Enum.reduce(@view_templ, fn sq, acc ->
@@ -235,15 +232,14 @@ defmodule TerminalView do
   @doc """
   Handles the game being over, in this case by printing the winner
   """
-  @spec on_game_over(game :: Game.t(), result :: Game.game_result()) :: :ok
-  def on_game_over(_game = %Game{board: board, player_turn: _p}, :tie) do
+  @spec on_game_over(Game.t(), result :: Game.game_result()) :: :ok
+  def on_game_over(%Game{board: board, player_turn: _p}, result) do
     IO.puts(get_board_str(board))
-    IO.puts("It's a tie! Good game 🤝")
-  end
 
-  def on_game_over(game, result) do
-    IO.puts(get_board_str(game.board))
-    IO.puts("#{Atom.to_string(result)} wins! Congrats!")
+    case result do
+      :tie -> IO.puts("It's a tie! Good game 🤝")
+      res when res in [:X, :O] -> IO.puts("#{Atom.to_string(res)} wins! Congrats!")
+    end
   end
 end
 
@@ -257,7 +253,7 @@ defmodule Controller do
   Plays out a game of TicTacToe from the given game state
   """
   @spec play(game :: Game.t()) :: :ok
-  def play(game) do
+  def play(game \\ Game.new()) do
     case Game.game_result(game) do
       nil -> play(handle_turn(game))
       res -> TerminalView.on_game_over(game, res)
@@ -277,13 +273,13 @@ defmodule Controller do
   end
 
   @spec handle_move(game :: Game.t(), sq :: Board.square()) :: Game.t()
-  defp handle_move(game, sq) do
-    case Game.put(game, sq) do
-      {:error, game} ->
-        TerminalView.on_illegal_move(sq)
-        game
+  defp handle_move(game = %Game{board: board, player_turn: _p}, sq) do
+    case Map.get(board, sq) do
+      nil ->
+        Game.put(game, sq)
 
-      {:ok, game} ->
+      _ ->
+        TerminalView.on_illegal_move(sq)
         game
     end
   end

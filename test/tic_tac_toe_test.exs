@@ -104,28 +104,23 @@ defmodule GameTest do
 
   test "put to empty board" do
     assert Game.new()
-           |> Game.put(:A1) == {
-             :ok,
+           |> Game.put(:A1) ==
              %Game{
                board: %Board{
                  A1: :X
                },
                player_turn: :O
              }
-           }
   end
 
   test "put to occupied square" do
-    {_, state} = Game.new() |> Game.put(:B3)
-
-    assert Game.put(state, :B3) ==
-             {:error,
-              %Game{
-                board: %Board{
-                  B3: :X
-                },
-                player_turn: :O
-              }}
+    assert Game.new() |> Game.put(:B3) |> Game.put(:B3) ==
+             %Game{
+               board: %Board{
+                 B3: :O
+               },
+               player_turn: :X
+             }
   end
 
   test "Game result new game" do

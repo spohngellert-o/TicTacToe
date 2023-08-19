@@ -1,0 +1,165 @@
+Compiling 1 file (.ex)
+Finding suitable PLTs
+Checking PLT...
+[:compiler, :elixir, :kernel, :logger, :stdlib]
+PLT is up to date!
+No :ignore_warnings opt specified in mix.exs and default does not exist.
+
+Starting Dialyzer
+[
+  check_plt: false,
+  init_plt: '/home/oliver/Documents/tic_tac_toe/_build/dev/dialyxir_erlang-25.3.2.5_elixir-1.14.5_deps-dev.plt',
+  files: ['/home/oliver/Documents/tic_tac_toe/_build/dev/lib/tic_tac_toe/ebin/Elixir.Board.beam',
+   '/home/oliver/Documents/tic_tac_toe/_build/dev/lib/tic_tac_toe/ebin/Elixir.Controller.beam',
+   '/home/oliver/Documents/tic_tac_toe/_build/dev/lib/tic_tac_toe/ebin/Elixir.Game.beam',
+   '/home/oliver/Documents/tic_tac_toe/_build/dev/lib/tic_tac_toe/ebin/Elixir.TerminalView.beam',
+   '/home/oliver/Documents/tic_tac_toe/_build/dev/lib/tic_tac_toe/ebin/Elixir.TicTacToe.beam'],
+  warnings: [:unknown]
+]
+Total errors: 10, Skipped: 0, Unnecessary Skips: 0
+done in 0m0.97s
+lib/tic_tac_toe.ex:148:invalid_contract
+The @spec for the function does not match the success typing of the function.
+
+Function:
+Game.game_result/1
+
+Success typing:
+@spec game_result(atom() | %{:board => Board, _ => _}) :: :O | :X | nil | :tie
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:203:invalid_contract
+The @spec for the function does not match the success typing of the function.
+
+Function:
+TerminalView.get_move/1
+
+Success typing:
+@spec get_move(atom() | %{:board => Board, :player_turn => _, _ => _}) ::
+  :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3 | :error
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:238:invalid_contract
+The @spec for the function does not match the success typing of the function.
+
+Function:
+TerminalView.on_game_over/2
+
+Success typing:
+@spec on_game_over(atom() | %{:board => Board, _ => _}, atom()) :: :ok
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:259:invalid_contract
+The @spec for the function does not match the success typing of the function.
+
+Function:
+Controller.play/1
+
+Success typing:
+@spec play(atom() | %{:board => Board, _ => _}) :: :ok
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:267:invalid_contract
+The @spec for the function does not match the success typing of the function.
+
+Function:
+Controller.handle_turn/1
+
+Success typing:
+@spec handle_turn(atom() | %{:board => Board, :player_turn => _, _ => _}) ::
+  atom() | %{:board => Board, :player_turn => _, _ => _}
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:275:call
+The function call will not succeed.
+
+Controller.handle_move(
+  _game :: atom() | %{:board => Board, :player_turn => _, _ => _},
+  _sq :: :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
+)
+
+will never return since the success typing is:
+(
+  %Game{
+    :board => %Board{
+      :A1 => :O | :X | nil,
+      :A2 => :O | :X | nil,
+      :A3 => :O | :X | nil,
+      :B1 => :O | :X | nil,
+      :B2 => :O | :X | nil,
+      :B3 => :O | :X | nil,
+      :C1 => :O | :X | nil,
+      :C2 => :O | :X | nil,
+      :C3 => :O | :X | nil
+    },
+    :player_turn => :O | :X
+  },
+  :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
+) :: %Game{
+  :board => %Board{
+    :A1 => :O | :X | nil,
+    :A2 => :O | :X | nil,
+    :A3 => :O | :X | nil,
+    :B1 => :O | :X | nil,
+    :B2 => :O | :X | nil,
+    :B3 => :O | :X | nil,
+    :C1 => :O | :X | nil,
+    :C2 => :O | :X | nil,
+    :C3 => :O | :X | nil
+  },
+  :player_turn => :O | :X
+}
+
+and the contract is
+(game :: Game.t(), sq :: Board.square()) :: Game.t()
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:280:no_return
+Function handle_move/2 has no local return.
+________________________________________________________________________________
+lib/tic_tac_toe.ex:281:call
+The function call will not succeed.
+
+Game.put(
+  _game :: atom() | %{:board => Board, :player_turn => _, _ => _},
+  _sq :: :A1 | :A2 | :A3 | :B1 | :B2 | :B3 | :C1 | :C2 | :C3
+)
+
+will never return since the success typing is:
+(%Game{:board => map(), :player_turn => _, _ => _}, any()) ::
+  {:error, %Game{:board => map(), :player_turn => _, _ => _}}
+  | {:ok, %Game{:board => map(), :player_turn => :O | :X}}
+
+and the contract is
+(game :: t(), square :: Board.square()) :: {:ok | :error, t()}
+
+________________________________________________________________________________
+lib/tic_tac_toe.ex:297:no_return
+Function main/1 has no local return.
+________________________________________________________________________________
+lib/tic_tac_toe.ex:298:call
+The function call will not succeed.
+
+Controller.play(%Game{
+  :board => %Board{
+    :A1 => nil,
+    :A2 => nil,
+    :A3 => nil,
+    :B1 => nil,
+    :B2 => nil,
+    :B3 => nil,
+    :C1 => nil,
+    :C2 => nil,
+    :C3 => nil
+  },
+  :player_turn => :X
+})
+
+will never return since the 1st arguments differ
+from the success typing arguments:
+
+(atom() | %{:board => Board, _ => _})
+
+________________________________________________________________________________
+done (warnings were emitted)
+Halting VM with exit status 2
