@@ -11,6 +11,86 @@ defmodule BoardTest do
   test "Testing reading square not on board" do
     assert Board.read_square("D1") == :error
   end
+
+  test "Winner of new game is nil" do
+    assert %Board{} |> Board.winner() == nil
+  end
+
+  test "Winner by row 1" do
+    assert Board.winner(%Board{
+             A1: :X,
+             A2: :X,
+             A3: :X
+           }) == :X
+  end
+
+  test "Winner by row 2" do
+    assert Board.winner(%Board{
+             B1: :O,
+             B2: :O,
+             B3: :O
+           }) == :O
+  end
+
+  test "Winner by row 3" do
+    assert Board.winner(%Board{
+             C1: :X,
+             C2: :X,
+             C3: :X
+           }) == :X
+  end
+
+  test "Winner by col 1" do
+    assert Board.winner(%Board{
+             A1: :O,
+             B1: :O,
+             C1: :O,
+             C2: :X,
+             C3: :X
+           }) == :O
+  end
+
+  test "Winner by col 2" do
+    assert Board.winner(%Board{
+             A2: :X,
+             A3: :O,
+             B2: :X,
+             B3: :O,
+             C1: :O,
+             C2: :X
+           }) == :X
+  end
+
+  test "Winner by col 3" do
+    assert Board.winner(%Board{
+             A2: :X,
+             A3: :O,
+             B3: :O,
+             C1: :O,
+             C2: :X,
+             C3: :O
+           }) == :O
+  end
+
+  test "Winner by diag 1" do
+    assert Board.winner(%Board{
+             A1: :X,
+             A3: :O,
+             B2: :X,
+             C1: :O,
+             C3: :X
+           }) == :X
+  end
+
+  test "Winner by diag 2" do
+    assert Board.winner(%Board{
+             A1: :X,
+             A3: :O,
+             B2: :O,
+             C1: :O,
+             C3: :X
+           }) == :O
+  end
 end
 
 defmodule GameTest do
@@ -19,19 +99,19 @@ defmodule GameTest do
   doctest Game
 
   test "new game" do
-    assert Game.new() == [board: %Board{}, turn: 0]
+    assert Game.new() == %Game{board: %Board{}, player_turn: :X}
   end
 
   test "put to empty board" do
     assert Game.new()
            |> Game.put(:A1) == {
              :ok,
-             [
+             %Game{
                board: %Board{
                  A1: :X
                },
-               turn: 1
-             ]
+               player_turn: :O
+             }
            }
   end
 
@@ -40,116 +120,12 @@ defmodule GameTest do
 
     assert Game.put(state, :B3) ==
              {:error,
-              [
+              %Game{
                 board: %Board{
                   B3: :X
                 },
-                turn: 1
-              ]}
-  end
-
-  test "Winner of new game is nil" do
-    assert Game.new() |> Game.winner() == nil
-  end
-
-  test "Winner by row 1" do
-    assert Game.winner(
-             board: %Board{
-               A1: :X,
-               A2: :X,
-               A3: :X
-             },
-             turn: 4
-           ) == :X
-  end
-
-  test "Winner by row 2" do
-    assert Game.winner(
-             board: %Board{
-               B1: :O,
-               B2: :O,
-               B3: :O
-             },
-             turn: 4
-           ) == :O
-  end
-
-  test "Winner by row 3" do
-    assert Game.winner(
-             board: %Board{
-               C1: :X,
-               C2: :X,
-               C3: :X
-             },
-             turn: 4
-           ) == :X
-  end
-
-  test "Winner by col 1" do
-    assert Game.winner(
-             board: %Board{
-               A1: :O,
-               B1: :O,
-               C1: :O,
-               C2: :X,
-               C3: :X
-             },
-             turn: 4
-           ) == :O
-  end
-
-  test "Winner by col 2" do
-    assert Game.winner(
-             board: %Board{
-               A2: :X,
-               A3: :O,
-               B2: :X,
-               B3: :O,
-               C1: :O,
-               C2: :X
-             },
-             turn: 4
-           ) == :X
-  end
-
-  test "Winner by col 3" do
-    assert Game.winner(
-             board: %Board{
-               A2: :X,
-               A3: :O,
-               B3: :O,
-               C1: :O,
-               C2: :X,
-               C3: :O
-             },
-             turn: 4
-           ) == :O
-  end
-
-  test "Winner by diag 1" do
-    assert Game.winner(
-             board: %Board{
-               A1: :X,
-               A3: :O,
-               B2: :X,
-               C1: :O,
-               C3: :X
-             },
-             turn: 4
-           ) == :X
-  end
-
-  test "Winner by diag 2" do
-    assert Game.winner(
-             board: %Board{
-               A1: :X,
-               A3: :O,
-               B2: :O,
-               C1: :O,
-               C3: :X
-             },
-             turn: 4
-           ) == :O
+                player_turn: :O
+              }}
   end
 
   test "Game result new game" do
@@ -157,14 +133,14 @@ defmodule GameTest do
   end
 
   test "Game result X won" do
-    assert Game.game_result(board: %Board{A1: :X, B2: :X, C3: :X}, turn: 3) == :X
+    assert Game.game_result(%Game{board: %Board{A1: :X, B2: :X, C3: :X}, player_turn: :O}) == :X
   end
 
   test "Game result full board" do
-    assert Game.game_result(
+    assert Game.game_result(%Game{
              board: %Board{A1: :X, A2: :X, A3: :O, B1: :O, B2: :O, B3: :X, C1: :X, C2: :O, C3: :X},
-             turn: 9
-           ) == :tie
+             player_turn: :O
+           }) == :tie
   end
 end
 
@@ -195,8 +171,7 @@ defmodule TerminalViewTest do
   test "Test getting input for valid square" do
     {result, _output} =
       with_io([input: "A1"], fn ->
-        mv = TerminalView.get_move(board: %Board{}, turn: 0)
-        IO.write("A1")
+        mv = TerminalView.get_move(%Game{board: %Board{}, player_turn: :X})
         mv
       end)
 
@@ -206,8 +181,7 @@ defmodule TerminalViewTest do
   test "Test getting input for already played square" do
     {result, _output} =
       with_io([input: "A1"], fn ->
-        mv = TerminalView.get_move(board: %Board{A1: :X}, turn: 1)
-        IO.write("A1")
+        mv = TerminalView.get_move(%Game{board: %Board{A1: :X}, player_turn: :O})
         mv
       end)
 
@@ -217,8 +191,7 @@ defmodule TerminalViewTest do
   test "Test getting input for invalid square" do
     {result, _output} =
       with_io([input: "D1"], fn ->
-        mv = TerminalView.get_move(board: %Board{}, turn: 0)
-        IO.write("A1")
+        mv = TerminalView.get_move(%Game{board: %Board{}, player_turn: :X})
         mv
       end)
 
@@ -236,12 +209,12 @@ defmodule TerminalViewTest do
   end
 
   test "Test on game end winner" do
-    assert capture_io(fn -> TerminalView.on_game_over([board: %Board{}, turn: 0], :X) end) =~
+    assert capture_io(fn -> TerminalView.on_game_over(Game.new(), :X) end) =~
              "X wins! Congrats!"
   end
 
   test "Test on game end tie" do
-    assert capture_io(fn -> TerminalView.on_game_over([board: %Board{}, turn: 0], :tie) end) =~
+    assert capture_io(fn -> TerminalView.on_game_over(Game.new(), :tie) end) =~
              "It's a tie! Good game 🤝"
   end
 end
